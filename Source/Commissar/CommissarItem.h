@@ -10,19 +10,36 @@ class COMMISSAR_API ACommissarItem : public AActor
 {
 	GENERATED_BODY()
 	
+	// Properties
 public:	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
-	FString ItemName;
+		FString ItemName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
-	int32 Value;
+		int32 Value;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	UStaticMeshComponent* Mesh;
+		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-	bool bCanBePickedUp;
+		bool bCanBePickedUp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Wieldable)
+		bool bHasInfiniteUses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Wieldable)
+		bool bHasInfiniteMaxUses;
+
+	// In other words how many shots are in one "clip"
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Wieldable)
+		int MaxUses;
+
+	// Count of how many uses are left
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Wieldable)
+		int Uses;
+
+	// Methods
+public:
 	// Sets default values for this actor's properties
 	ACommissarItem();
 
@@ -37,6 +54,4 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
-	
 };

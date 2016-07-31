@@ -29,6 +29,8 @@ ACommissarProjectile::ACommissarProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+	// Or on impact
+	bDieOnImpact = true;
 }
 
 void ACommissarProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

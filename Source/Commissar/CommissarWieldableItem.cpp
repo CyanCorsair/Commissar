@@ -3,6 +3,6 @@
 #include "Commissar.h"
 #include "CommissarWieldableItem.h"
 
+ACommissarWieldableItem::ACommissarWieldableItem() {
 
-
-
+}

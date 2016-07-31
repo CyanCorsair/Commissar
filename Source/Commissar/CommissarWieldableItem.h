@@ -13,7 +13,18 @@ class COMMISSAR_API ACommissarWieldableItem : public ACommissarItem
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+	/** Properties */
+	public:
+
+	private:
+
+	protected:
+
+	/** Methods */
+	public:
+		ACommissarWieldableItem();
+
+	private:
+
+	protected:
 };

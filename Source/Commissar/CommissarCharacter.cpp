@@ -22,9 +22,6 @@ ACommissarCharacter::ACommissarCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// We don't start sprinting
-	bIsSprinting = false;
-
 	// Inventory setup
 	bIsInventoryOpen = false;
 	InventoryGridSquareSize = 64;
@@ -65,6 +62,9 @@ ACommissarCharacter::ACommissarCharacter()
 
 	// Character attribute setup
 	MaxHealth = 100, Health = 100;
+
+	// Allow the character to crouch
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 
@@ -230,14 +230,12 @@ void ACommissarCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const
 
 void ACommissarCharacter::Sprint()
 {
-	bIsSprinting = true;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkingSpeed * 2.0f;
 }
 
 
 void ACommissarCharacter::StopSprinting()
 {
-	bIsSprinting = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkingSpeed;
 }
 
@@ -264,19 +262,16 @@ void ACommissarCharacter::MoveRight(float Value)
 
 void ACommissarCharacter::StartCrouch()
 {
-	if (GetCharacterMovement()->IsMovingOnGround())
+	if (CanCrouch() == true)
 	{
-		GetCharacterMovement()->bWantsToCrouch = true;
+		Crouch();
 	}
 }
 
 
 void ACommissarCharacter::EndCrouch()
 {
-	if (GetCharacterMovement()->IsMovingOnGround())
-	{
-		GetCharacterMovement()->bWantsToCrouch = false;
-	}
+	UnCrouch();
 }
 
 

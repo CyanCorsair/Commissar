@@ -13,7 +13,19 @@ class COMMISSAR_API ACommissarWearableItem : public ACommissarItem
 {
 	GENERATED_BODY()
 	
-	
-	
+	/** Properties */
+	public:
+
+	private:
+
+	protected:
+
+		/** Methods */
+	public:
+		ACommissarWearableItem();
+
+	private:
+
+	protected:
 	
 };

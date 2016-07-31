@@ -3,6 +3,6 @@
 #include "Commissar.h"
 #include "CommissarWearableItem.h"
 
+ACommissarWearableItem::ACommissarWearableItem() {
 
-
-
+}
