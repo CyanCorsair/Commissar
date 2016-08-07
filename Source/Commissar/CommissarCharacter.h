@@ -5,41 +5,6 @@
 
 class UInputComponent;
 
-/** Base character skill struct */
-USTRUCT()
-struct FCharacterSkill
-{
-	GENERATED_BODY()
-
-	/** Skill UI display name and shorthand */
-	FString FriendlyName;
-	FString SystemName;
-
-	/** Skill description strings */
-	FString UntrainedDescription;
-	FString TrainedDescription;
-	FString AdvancedDescription;
-	FString MasterDescription;
-
-	/** Experience cost integers */
-	int BaseExperienceCost;
-	int ExperienceCost;
-	int ExperienceCostModifier;
-
-	/** Current level of skill */
-	int CurrentLevel;
-
-	/** Icon sprites */
-	UTexture2D* IconLarge;
-	UTexture2D* IconSmall;
-
-	/** 
-	* Does the owner have access? 
-	* Used for Advanced Training
-	*/
-	bool bHasAccess;
-};
-
 UENUM()
 enum class CharacterMovementState
 {
@@ -88,7 +53,8 @@ class ACommissarCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, Category = Inventory)
 		TArray<class ACommissarItem*> ItemInventory;
 
-	bool bIsInventoryOpen;
+	TArray<class ACommissarItem*, TFixedAllocator<10>> QuickInventory;
+
 	int InventoryGridSquareSize;
 	int InventoryGridX;
 	int InventoryGridY;
@@ -96,42 +62,59 @@ class ACommissarCharacter : public ACharacter
 	/** Character base attributes */
 	float DefaultMaxWalkingSpeed = 0.0f;
 
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	int MaxHealth;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	int Health;
 
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	int MaxShields;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	int Shields;
 
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	int MaxCredits;
+
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	int Credits;
 
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	int MaxMatter;
+
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	int Matter;
 
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	class ACommissarWieldableItem* CurrentlyHeld;
+
+	UPROPERTY(EditAnywhere, Category = Inventory)
 	class ACommissarWearableItem* CurrentlyWorn;
 
 	/** Weapon modifiers */
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float MaxWeaponSpread;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float WeaponSpread;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float BaseWeaponSpreadReduction;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float BaseWeaponReloadSpeed;
 
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float BaseMeleeHitSpeed;
+
+	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
 	float BaseMeleeHitStrength;
-
-	/** Player only skill declarations */
-	FCharacterSkill ElectronicSecurity;
-	FCharacterSkill MechanicalSecurity;
-	FCharacterSkill Scavenging;
-	FCharacterSkill Dialogue;
-
-	/** Advanced Training skill declarations */
-	FCharacterSkill RigEngineering;
-	FCharacterSkill WeaponEngineering;
 
 	/** Do we want to trace a line? */
 	bool bDrawDebugTrace;
+
+	void KillCharacter();
 
 public:
 	ACommissarCharacter();
@@ -168,6 +151,9 @@ public:
 	ACommissarItem* GetUsableInView();
 	void PickUpItem(ACommissarItem* item);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
+	bool bIsInventoryOpen;
+
 	class ACommissarWieldableItem* CurrentlyHeldItem;
 
 	void Tick(float DeltaSeconds) override;
@@ -176,6 +162,17 @@ public:
 		TArray<class ACommissarItem*> GetInventory();
 
 	/** Skill & attribute blueprint declarations */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
+	float DisplayHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
+	float DisplayShields;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
+	float DisplayMatter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
+	float DisplayCredits;
 
 	/** NPC Only attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
@@ -187,39 +184,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
 	int Morale;
 
-	/** Skill declarations - NPC & Player */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill WeaponSkill;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill BallisticSkill_Sidearm;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill BallisticSkill_CloseAssault;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill BallisticSkill_Heavy;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill BallisticSkill_Rifles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill Medicine;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	FCharacterSkill FieldRepair;
-
 	/** Attribute and skill modifier methods */
 
-	int GetHealth();
-	int GetShields();
-	int GetMatter();
-	int GetCredits();
-	
-	void SetHealth(int HealthVariable, int Amount);
-	void SetShields(int ShieldVariable, int Amount);
-	void SetMatter(int MatterVariable, int Amount);
-	void SetCredits(int Amount);
+	/** Character owned skils */
+	UPROPERTY(EditAnywhere, Category = CharacterSkills)
+		TArray<class UCommissarBaseSkill*> SkillList;
+
+	UFUNCTION(BlueprintCallable, Category = "Attribute Accessors")
+	int GetAttributeValue(FString AttributeName);
+
+	UFUNCTION(BlueprintCallable, Category = "Attribute Accessors")
+	void SetAttributeValue(FString AttributeName, int Amount);
 
 protected:
 	

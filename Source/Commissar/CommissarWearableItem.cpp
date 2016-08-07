@@ -4,5 +4,5 @@
 #include "CommissarWearableItem.h"
 
 ACommissarWearableItem::ACommissarWearableItem() {
-
+	MaxShieldCount = 100;
 }

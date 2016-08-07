@@ -12,8 +12,16 @@ UCLASS()
 class COMMISSAR_API UCommissarMedicineSkill : public UCommissarBaseSkill
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+
+public:
+	UCommissarMedicineSkill();
+
+	int SetCurrentSkillLevel();
+
+	int MedkitHealingModifier;
+
+protected:
+	int SetExperienceCost();
+	void UpdateSkillEffects();
 };

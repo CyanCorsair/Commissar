@@ -19,6 +19,9 @@ public:
 		int32 Value;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		UStaticMeshComponent* DefaultMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
@@ -47,8 +50,14 @@ public:
 	virtual void BeginPlay() override;
 	
 	// Interaction
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void OnUsed();
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void PickedUp();
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void Dropped();
 
 	// Called every frame

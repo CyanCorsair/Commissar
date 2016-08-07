@@ -15,6 +15,7 @@ class COMMISSAR_API ACommissarWearableItem : public ACommissarItem
 	
 	/** Properties */
 	public:
+		int MaxShieldCount;
 
 	private:
 

@@ -2,6 +2,7 @@
 
 #include "Commissar.h"
 #include "CommissarItem.h"
+#include "CommissarCharacter.h"
 
 
 // Sets default values
@@ -9,7 +10,8 @@ ACommissarItem::ACommissarItem()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>( TEXT("Mesh"));
+	DefaultMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh = DefaultMesh;
 	RootComponent = Mesh;
 	bCanBePickedUp = true;
 }
@@ -30,15 +32,35 @@ void ACommissarItem::Tick( float DeltaTime )
 }
 
 void ACommissarItem::OnUsed() {
-	
+	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
+
+	if (Owner)
+	{
+
+	}
 }
 
 void ACommissarItem::PickedUp() {
-	if (Mesh) {
+	if (Mesh)
+	{
 		Mesh->DestroyComponent();
 	}
 }
 
 void ACommissarItem::Dropped() {
+	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
+	FRotator SpawnRotation(0.f, 0.f, 0.f);
+	FVector SpawnLocation(0.f, 0.f, 0.f);
 
+	if (Owner)
+	{
+		TArray<ACommissarItem*> Inventory = Owner->GetInventory();
+		Inventory.Remove(this);
+
+		SpawnRotation = Owner->GetControlRotation();
+		SpawnLocation = Owner->GetActorLocation();
+		SpawnLocation.X = (SpawnLocation.X + Owner->MaxUseDistance);
+	}
+
+	Mesh = DefaultMesh;
 }

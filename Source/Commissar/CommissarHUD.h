@@ -1,7 +1,6 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once 
 #include "GameFramework/HUD.h"
-#include "SMainHudWidget.h"
 #include "CommissarHUD.generated.h"
 
 UCLASS()
@@ -15,20 +14,13 @@ public:
 	/** Primary draw call for the HUD */
 	virtual void DrawHUD() override;
 
-	/** Slate widget declarations */
-	TSharedPtr<SMainHudWidget> MainHudWidget;
-
 	void BeginPlay() override;
-	void UpdateHealth();
 
-	// State variables
-	int CurrentHealth;
-	FString CurrentlyHeldItem;
-
+	/** Set up connection to UMG widgets */
+	class UClass* TestHUDWidgetClass;
+	class UUserWidget* TestHUDWidget;
 
 private:
-	/** Crosshair asset pointer */
-	class UTexture2D* CrosshairTex;
 
 };
 

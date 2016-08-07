@@ -3,7 +3,14 @@
 #include "Commissar.h"
 #include "CommissarCharacter.h"
 #include "CommissarItem.h"
+#include "CommissarWearableItem.h"
+#include "CommissarWieldableItem.h"
+#include "CommissarConsumableItem.h"
 #include "CommissarProjectile.h"
+
+#include "CommissarBaseSkill.h"
+#include "CommissarMedicineSkill.h"
+
 #include "Engine.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
@@ -17,6 +24,9 @@ ACommissarCharacter::ACommissarCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+
+	// Allow the character to crouch
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -62,9 +72,28 @@ ACommissarCharacter::ACommissarCharacter()
 
 	// Character attribute setup
 	MaxHealth = 100, Health = 100;
+	MaxCredits = 1000000, Credits = 250;
+	MaxMatter = 2480, Matter = 100;
+	MaxShields = 0, Shields = 0;
 
-	// Allow the character to crouch
-	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	DisplayHealth = Health;
+	DisplayShields = Shields;
+	DisplayCredits = Credits;
+	DisplayMatter = Matter;
+
+	CurrentlyWorn = NULL;
+	CurrentlyHeld = NULL;
+
+	if (CurrentlyWorn != NULL)
+	{
+		MaxShields = CurrentlyWorn->MaxShieldCount;
+		Shields = MaxShields;
+	}
+
+	// Skill definitions
+	UCommissarMedicineSkill* Medicine = NewObject<UCommissarMedicineSkill>();
+
+	SkillList.Add(Medicine);
 }
 
 
@@ -357,7 +386,38 @@ void ACommissarCharacter::ToggleInventory() {
 
 
 // Player character stat logic
+int ACommissarCharacter::GetAttributeValue(FString AttributeName) {
 
-int ACommissarCharacter::GetHealth() {
-	return Health;
+		if (AttributeName == "Health") return Health;
+		if (AttributeName == "Shields") return Shields;
+		if (AttributeName == "Credits") return Credits;
+		if (AttributeName == "Matter") return Matter;
+
+		return false;
+}
+
+void ACommissarCharacter::SetAttributeValue(FString AttributeName, int Amount) {
+	int Attribute;
+
+	if (AttributeName == "Health") Attribute = Health;
+	if (AttributeName == "Shields") Attribute = Shields;
+	if (AttributeName == "Credits") Attribute = Credits;
+	if (AttributeName == "Matter") Attribute = Matter;
+
+	if (Amount <= MaxHealth && Amount >= 0) 
+	{
+		Attribute = Amount;
+	}
+	else
+	{
+		if (Amount > MaxHealth)
+		{
+			Attribute = MaxHealth;
+		}
+
+		if (Amount < 0)
+		{
+			Attribute = 0;
+		}
+	}
 }
