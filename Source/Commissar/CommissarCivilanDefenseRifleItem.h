@@ -13,7 +13,6 @@ class COMMISSAR_API ACommissarCivilanDefenseRifleItem : public ACommissarWieldab
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	ACommissarCivilanDefenseRifleItem();
 };

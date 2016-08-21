@@ -3,6 +3,8 @@
 #include "Commissar.h"
 #include "CommissarCivilanDefenseRifleItem.h"
 
+#include "Engine.h"
 
-
-
+ACommissarCivilanDefenseRifleItem::ACommissarCivilanDefenseRifleItem()
+{
+}
