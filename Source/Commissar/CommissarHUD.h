@@ -17,8 +17,14 @@ public:
 	void BeginPlay() override;
 
 	/** Set up connection to UMG widgets */
-	class UClass* TestHUDWidgetClass;
-	class UUserWidget* TestHUDWidget;
+	class UClass* ActiveHUDWidgetClass;
+	class UUserWidget* ActiveHUDWidget;
+
+	class UClass* PauseWidgetClass;
+	class UUserWidget* PauseWidget;
+
+	class UClass* CharacterHUDWidgetClass;
+	class UUserWidget* CharacterHUDWidget;
 
 private:
 

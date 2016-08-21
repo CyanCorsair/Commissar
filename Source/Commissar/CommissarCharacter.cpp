@@ -33,7 +33,6 @@ ACommissarCharacter::ACommissarCharacter()
 	BaseLookUpRate = 45.f;
 
 	// Inventory setup
-	bIsInventoryOpen = false;
 	InventoryGridSquareSize = 64;
 	InventoryGridX, InventoryGridY = 16;
 	MaxUseDistance = 100.f;
@@ -101,6 +100,9 @@ void ACommissarCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	CurrentState = ECharacterState::Idle;
+	CurrentMovementState = ECharacterMovementState::Stopped;
 
 	DefaultMaxWalkingSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint")); //Attach gun mesh component to Skeleton, doing it here because the skelton is not yet created in the constructor
@@ -369,8 +371,8 @@ TArray<class ACommissarItem*> ACommissarCharacter::GetInventory() {
 
 
 void ACommissarCharacter::ToggleInventory() {
-	if (!bIsInventoryOpen) {
-		bIsInventoryOpen = true;
+	if (CurrentState != ECharacterState::UsingCharacterMenu) {
+		CurrentState = ECharacterState::UsingCharacterMenu;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory open"));
 		TArray<class ACommissarItem*> CurrentInventory = this->GetInventory();
 
@@ -379,7 +381,7 @@ void ACommissarCharacter::ToggleInventory() {
 		}
 	}
 	else {
-		bIsInventoryOpen = false;
+		CurrentState = ECharacterState::Idle;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory closed"));
 	}
 }

@@ -13,13 +13,31 @@
 
 ACommissarHUD::ACommissarHUD()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> TestHUDWidget(TEXT("/Game/UIBP/MainHUD"));
-	if (TestHUDWidget.Succeeded()) {
-		TestHUDWidgetClass = TestHUDWidget.Class;
+	static ConstructorHelpers::FClassFinder<UUserWidget> ActiveHUDWidget(TEXT("/Game/UIBP/MainHUD"));
+	if (ActiveHUDWidget.Succeeded()) {
+		ActiveHUDWidgetClass = ActiveHUDWidget.Class;
 	}
 	else {
 		// hudWidgetObj not found
-		TestHUDWidgetClass = nullptr;
+		ActiveHUDWidgetClass = nullptr;
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> PauseWidget(TEXT("/Game/UIBP/PauseMenu"));
+	if (PauseWidget.Succeeded()) {
+		PauseWidgetClass = PauseWidget.Class;
+	}
+	else {
+		// hudWidgetObj not found
+		PauseWidgetClass = nullptr;
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> CharacterHUDWidget(TEXT("/Game/UIBP/CharacterMenu"));
+	if (CharacterHUDWidget.Succeeded()) {
+		CharacterHUDWidgetClass = CharacterHUDWidget.Class;
+	}
+	else {
+		// hudWidgetObj not found
+		CharacterHUDWidgetClass = nullptr;
 	}
 }
 
@@ -32,9 +50,21 @@ void ACommissarHUD::DrawHUD()
 void ACommissarHUD::BeginPlay() {
 	Super::BeginPlay();
 
-	if (TestHUDWidgetClass) {
+	if (ActiveHUDWidgetClass) {
 		// the player controller should be constructed by now so we can get a reference to it
-		TestHUDWidget = CreateWidget<UUserWidget>(this->GetOwningPlayerController(), this->TestHUDWidgetClass);
-		TestHUDWidget->AddToViewport();
+		ActiveHUDWidget = CreateWidget<UUserWidget>(this->GetOwningPlayerController(), this->ActiveHUDWidgetClass);
+		ActiveHUDWidget->AddToViewport();
+	}
+
+	if (PauseWidgetClass) {
+		// the player controller should be constructed by now so we can get a reference to it
+		PauseWidget = CreateWidget<UUserWidget>(this->GetOwningPlayerController(), this->PauseWidgetClass);
+		PauseWidget->AddToViewport();
+	}
+
+	if (CharacterHUDWidgetClass) {
+		// the player controller should be constructed by now so we can get a reference to it
+		CharacterHUDWidget = CreateWidget<UUserWidget>(this->GetOwningPlayerController(), this->CharacterHUDWidgetClass);
+		CharacterHUDWidget->AddToViewport();
 	}
 }

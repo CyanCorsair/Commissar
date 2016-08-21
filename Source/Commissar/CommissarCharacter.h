@@ -5,8 +5,8 @@
 
 class UInputComponent;
 
-UENUM()
-enum class CharacterMovementState
+UENUM(BlueprintType)
+enum class ECharacterMovementState : uint8
 {
 	Stopped,
 	Walking,
@@ -14,13 +14,15 @@ enum class CharacterMovementState
 	Sprinting
 };
 
-UENUM()
-enum class CharacterState
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
 {
 	Moving,
 	Idle,
 	Talking,
-	UsingMenu,
+	UsingCharacterMenu,
+	UsingPauseMenu,
+	ZeroG,
 	Dead
 };
 
@@ -44,10 +46,6 @@ class ACommissarCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
-
-	/** Character state monitors */
-	CharacterState CurrentState;
-	CharacterMovementState CurrentMovementState;
 
 	/** Inventory setup */
 	UPROPERTY(EditAnywhere, Category = Inventory)
@@ -121,6 +119,13 @@ public:
 
 	virtual void BeginPlay();
 
+	/** Character state monitors */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	ECharacterState CurrentState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	ECharacterMovementState CurrentMovementState;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -150,9 +155,6 @@ public:
 
 	ACommissarItem* GetUsableInView();
 	void PickUpItem(ACommissarItem* item);
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
-	bool bIsInventoryOpen;
 
 	class ACommissarWieldableItem* CurrentlyHeldItem;
 

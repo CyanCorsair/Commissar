@@ -18,11 +18,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
 		int32 Value;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item)
+		int InventorySquaresOccupied;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		UStaticMeshComponent* DefaultMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		UTexture2D* BigIcon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		UTexture2D* SmallIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		bool bCanBePickedUp;
