@@ -12,8 +12,13 @@ UCLASS()
 class COMMISSAR_API ACommissarAmmunition : public ACommissarConsumableItem
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+// Properties
+public:
+	ACommissarAmmunition();
+
+	bool bIsProjectile;
+
+// Methods
+public:
 };

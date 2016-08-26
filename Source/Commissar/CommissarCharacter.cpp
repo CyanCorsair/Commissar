@@ -3,14 +3,11 @@
 #include "Commissar.h"
 #include "CommissarCharacter.h"
 #include "CommissarItem.h"
-#include "CommissarWearableItem.h"
-#include "CommissarWieldableItem.h"
 #include "CommissarConsumableItem.h"
+#include "CommissarWieldable.h"
+#include "CommissarWearable.h"
 
 #include "CommissarBaseSkill.h"
-#include "CommissarMedicineSkill.h"
-
-#include "CommissarCivilanDefenseRifleItem.h"
 
 #include "Engine.h"
 #include "Animation/AnimInstance.h"
@@ -36,7 +33,7 @@ ACommissarCharacter::ACommissarCharacter()
 	// Inventory setup
 	InventoryGridSquareSize = 64;
 	InventoryGridX, InventoryGridY = 16;
-	MaxUseDistance = 100.f;
+	MaxUseDistance = 200.f;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -64,6 +61,7 @@ ACommissarCharacter::ACommissarCharacter()
 	DisplayCredits = Credits;
 	DisplayMatter = Matter;
 
+	bHasNewFocus = true;
 	CurrentlyHeld = NULL;
 	CurrentlyWorn = NULL;
 
@@ -72,11 +70,6 @@ ACommissarCharacter::ACommissarCharacter()
 		MaxShields = CurrentlyWorn->MaxShieldCount;
 		Shields = MaxShields;
 	}
-
-	// Skill definitions
-	UCommissarMedicineSkill* Medicine = NewObject<UCommissarMedicineSkill>();
-
-	SkillList.Add(Medicine);
 }
 
 
@@ -92,14 +85,14 @@ void ACommissarCharacter::BeginPlay()
 
 	FActorSpawnParameters HeldSpawnParams;
 	HeldSpawnParams.Owner = this;
-	CurrentlyHeld = GetWorld()->SpawnActor<ACommissarWieldableItem>(ACommissarWieldableItem::StaticClass(), HeldSpawnParams);
 
-	if (CurrentlyHeld) 
+	if (CurrentlyHeld)
 	{
 		Mesh1P->SetVisibility(true);
-		CurrentlyHeld->FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint")); //Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+		//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+		CurrentlyHeld->Mesh->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 	}
-	else 
+	else
 	{
 		Mesh1P->SetVisibility(false);
 	}
@@ -154,6 +147,13 @@ void ACommissarCharacter::OnUse() {
 		if (ItemInView->bCanBePickedUp) {
 			PickUpItem(ItemInView);
 			ItemInView->PickedUp();
+			if (ItemInView->IsA(ACommissarWieldable::StaticClass()) && CurrentlyHeld == NULL)
+			{
+				CurrentlyHeld = Cast<ACommissarWieldable>(ItemInView);
+				Mesh1P->SetVisibility(true);
+				CurrentlyHeld->SetOwner(this);
+				CurrentlyHeld->WieldableMesh->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+			}
 		}
 		else {
 			ItemInView->OnUsed();
@@ -286,11 +286,10 @@ void ACommissarCharacter::LookUpAtRate(float Rate)
 }
 
 
-ACommissarItem* ACommissarCharacter::GetUsableInView() {
+ACommissarItem* ACommissarCharacter::GetUsableInView()
+{
 	FVector CamLoc;
 	FRotator CamRot;
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("doing"));
 
 	if (Controller == NULL)
 		return NULL;
@@ -316,14 +315,41 @@ ACommissarItem* ACommissarCharacter::GetUsableInView() {
 	return Cast<ACommissarItem>(Hit.GetActor());
 }
 
-void ACommissarCharacter::Tick(float DeltaSeconds) {
+void ACommissarCharacter::Tick(float DeltaSeconds)
+{
 	Super::Tick(DeltaSeconds);
+
+	ACommissarItem* Usable = GetUsableInView();
+
+	// End focus
+	if (FocusedUsableActor != Usable)
+	{
+		if (FocusedUsableActor)
+		{
+			FocusedUsableActor->OnEndFocus();
+		}
+
+		bHasNewFocus = true;
+	}
+
+	// Assign new focus
+	FocusedUsableActor = Usable;
+
+	if (Usable)
+	{
+		if (bHasNewFocus)
+		{
+			Usable->OnBeginFocus();
+			bHasNewFocus = false;
+		}
+	}
 }
 
 
 // Item interaction logic
 
-void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem) {
+void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem)
+{
 	if (NewItem) {
 		ItemInventory.Add(NewItem);
 		NewItem->PickedUp();
@@ -331,22 +357,27 @@ void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem) {
 }
 
 
-TArray<class ACommissarItem*> ACommissarCharacter::GetInventory() {
+TArray<class ACommissarItem*> ACommissarCharacter::GetInventory()
+{
 	return ItemInventory;
 }
 
 
-void ACommissarCharacter::ToggleInventory() {
-	if (CurrentState != ECharacterState::UsingCharacterMenu) {
+void ACommissarCharacter::ToggleInventory()
+{
+	if (CurrentState != ECharacterState::UsingCharacterMenu)
+	{
 		CurrentState = ECharacterState::UsingCharacterMenu;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory open"));
 		TArray<class ACommissarItem*> CurrentInventory = this->GetInventory();
 
-		for (auto& Item : CurrentInventory) {
+		for (auto& Item : CurrentInventory)
+		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Item name: %s"), *Item->ItemName));
 		}
 	}
-	else {
+	else
+	{
 		CurrentState = ECharacterState::Idle;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory closed"));
 	}
@@ -354,38 +385,46 @@ void ACommissarCharacter::ToggleInventory() {
 
 
 // Player character stat logic
-int ACommissarCharacter::GetAttributeValue(FString AttributeName) {
+int ACommissarCharacter::GetAttributeValue(FString AttributeName)
+{
 
-		if (AttributeName == "Health") return Health;
-		if (AttributeName == "Shields") return Shields;
-		if (AttributeName == "Credits") return Credits;
-		if (AttributeName == "Matter") return Matter;
+	if (AttributeName == "Health") return Health;
+	if (AttributeName == "Shields") return Shields;
+	if (AttributeName == "Credits") return Credits;
+	if (AttributeName == "Matter") return Matter;
 
-		return false;
+	return false;
 }
 
-void ACommissarCharacter::SetAttributeValue(FString AttributeName, int Amount) {
-	int Attribute;
+void ACommissarCharacter::SetAttributeValue(FString AttributeName, int Amount)
+{
+	if (AttributeName == "Health") Health = CalculateNewValue(MaxHealth, Amount);
+	if (AttributeName == "Shields") Shields = CalculateNewValue(MaxShields, Amount);
+	if (AttributeName == "Credits") Credits = CalculateNewValue(MaxCredits, Amount);
+	if (AttributeName == "Matter") Matter = CalculateNewValue(MaxMatter, Amount);
+}
+	
 
-	if (AttributeName == "Health") Attribute = Health;
-	if (AttributeName == "Shields") Attribute = Shields;
-	if (AttributeName == "Credits") Attribute = Credits;
-	if (AttributeName == "Matter") Attribute = Matter;
+int ACommissarCharacter::CalculateNewValue(int Max, int New)
+{
+	int Attribute = 0;
 
-	if (Amount <= MaxHealth && Amount >= 0) 
+	if (New <= Max && New >= 0)
 	{
-		Attribute = Amount;
+		Attribute = New;
 	}
 	else
 	{
-		if (Amount > MaxHealth)
+		if (New > Max)
 		{
-			Attribute = MaxHealth;
+			Attribute = Max;
 		}
 
-		if (Amount < 0)
+		if (New < 0)
 		{
 			Attribute = 0;
 		}
 	}
+
+	return Attribute;
 }

@@ -5,13 +5,13 @@
 #include "CommissarCharacter.h"
 
 
+
 // Sets default values
 ACommissarItem::ACommissarItem()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	DefaultMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh = DefaultMesh;
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
 	bCanBePickedUp = true;
 }
@@ -25,9 +25,9 @@ void ACommissarItem::BeginPlay()
 }
 
 // Called every frame
-void ACommissarItem::Tick( float DeltaTime )
+void ACommissarItem::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 
 }
 
@@ -36,7 +36,7 @@ void ACommissarItem::OnUsed() {
 
 	if (Owner)
 	{
-
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 	}
 }
 
@@ -61,6 +61,17 @@ void ACommissarItem::Dropped() {
 		SpawnLocation = Owner->GetActorLocation();
 		SpawnLocation.X = (SpawnLocation.X + Owner->MaxUseDistance);
 	}
+}
 
-	Mesh = DefaultMesh;
+void ACommissarItem::OnBeginFocus()
+{
+	// Used by custom PostProcess to render outlines
+	Mesh->SetRenderCustomDepth(true);
+}
+
+
+void ACommissarItem::OnEndFocus()
+{
+	// Used by custom PostProcess to render outlines
+	Mesh->SetRenderCustomDepth(false);
 }

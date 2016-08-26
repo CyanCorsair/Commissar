@@ -26,7 +26,7 @@ enum class ECharacterState : uint8
 	Dead
 };
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class ACommissarCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -49,53 +49,53 @@ class ACommissarCharacter : public ACharacter
 	float DefaultMaxWalkingSpeed = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	int MaxHealth;
+		int MaxHealth;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	int Health;
+		int Health;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	int MaxShields;
+		int MaxShields;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	int Shields;
+		int Shields;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	int MaxCredits;
+		int MaxCredits;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	int Credits;
+		int Credits;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	int MaxMatter;
+		int MaxMatter;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	int Matter;
+		int Matter;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	class ACommissarWieldableItem* CurrentlyHeld;
+		class ACommissarWieldable* CurrentlyHeld;
 
 	UPROPERTY(EditAnywhere, Category = Inventory)
-	class ACommissarWearableItem* CurrentlyWorn;
+		class ACommissarWearable* CurrentlyWorn;
 
 	/** Weapon modifiers */
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float MaxWeaponSpread;
+		float MaxWeaponSpread;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float WeaponSpread;
+		float WeaponSpread;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float BaseWeaponSpreadReduction;
+		float BaseWeaponSpreadReduction;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float BaseWeaponReloadSpeed;
+		float BaseWeaponReloadSpeed;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float BaseMeleeHitSpeed;
+		float BaseMeleeHitSpeed;
 
 	UPROPERTY(EditAnywhere, Category = CharacterAttributes)
-	float BaseMeleeHitStrength;
+		float BaseMeleeHitStrength;
 
 	/** Do we want to trace a line? */
 	bool bDrawDebugTrace;
@@ -113,30 +113,33 @@ public:
 
 	/** Character state monitors */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	ECharacterState CurrentState;
+		ECharacterState CurrentState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	ECharacterMovementState CurrentMovementState;
+		ECharacterMovementState CurrentMovementState;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	float BaseTurnRate;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	float BaseLookUpRate;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+		float BaseLookUpRate;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	class UAnimMontage* FireAnimation;
+		class UAnimMontage* FireAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float MaxUseDistance;
+		float MaxUseDistance;
 
 	ACommissarItem* GetUsableInView();
 	void PickUpItem(ACommissarItem* item);
 
-	class ACommissarWieldableItem* CurrentlyHeldItem;
+	/* True only in first frame when focused on a new usable actor. */
+	bool bHasNewFocus;
+
+	class ACommissarItem* FocusedUsableActor;
 
 	void Tick(float DeltaSeconds) override;
 
@@ -145,26 +148,26 @@ public:
 
 	/** Skill & attribute blueprint declarations */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	float DisplayHealth;
+		float DisplayHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	float DisplayShields;
+		float DisplayShields;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	float DisplayMatter;
+		float DisplayMatter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	float DisplayCredits;
+		float DisplayCredits;
 
 	/** NPC Only attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	float Leadership;
+		float Leadership;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	int Initiative;
+		int Initiative;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterProperties)
-	int Morale;
+		int Morale;
 
 	/** Attribute and skill modifier methods */
 
@@ -172,14 +175,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = CharacterSkills)
 		TArray<class UCommissarBaseSkill*> SkillList;
 
-	UFUNCTION(BlueprintCallable, Category = "Attribute Accessors")
-	int GetAttributeValue(FString AttributeName);
+	UFUNCTION(BlueprintCallable, Category = AttributeAccessors)
+		int GetAttributeValue(FString AttributeName);
 
-	UFUNCTION(BlueprintCallable, Category = "Attribute Accessors")
-	void SetAttributeValue(FString AttributeName, int Amount);
+	UFUNCTION(BlueprintCallable, Category = AttributeAccessors)
+		void SetAttributeValue(FString AttributeName, int Amount);
+
+	UFUNCTION(BlueprintCallable, Category = AttributeAccessors)
+		int CalculateNewValue(int Max, int New);
 
 protected:
-	
+
 	/** Fires a projectile. */
 	void OnFire();
 
@@ -212,11 +218,12 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	void SpawnDefaultInventory();
 	void ToggleInventory();
 
 	struct TouchData
 	{
-		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}
+		TouchData() { bIsPressed = false; Location = FVector::ZeroVector; }
 		bool bIsPressed;
 		ETouchIndex::Type FingerIndex;
 		FVector Location;
@@ -226,7 +233,7 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
-	
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

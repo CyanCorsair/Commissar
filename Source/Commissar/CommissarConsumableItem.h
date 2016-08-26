@@ -12,8 +12,14 @@ UCLASS()
 class COMMISSAR_API ACommissarConsumableItem : public ACommissarItem
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+	// Properties
+	public:
+
+	// Methods
+public:
+	ACommissarConsumableItem();
+
+	virtual void BeginPlay() override;
+
 };

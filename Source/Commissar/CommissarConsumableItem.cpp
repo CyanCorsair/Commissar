@@ -2,7 +2,13 @@
 
 #include "Commissar.h"
 #include "CommissarConsumableItem.h"
+#include "CommissarCharacter.h"
 
+ACommissarConsumableItem::ACommissarConsumableItem()
+{
+}
 
-
-
+void ACommissarConsumableItem::BeginPlay()
+{
+	Super::BeginPlay();
+}

@@ -2,14 +2,20 @@
 
 #pragma once
 
+#include "CommissarItem.h"
 #include "GameFramework/Actor.h"
 #include "CommissarWearable.generated.h"
 
 UCLASS()
-class COMMISSAR_API ACommissarWearable : public AActor
+class COMMISSAR_API ACommissarWearable : public ACommissarItem
 {
 	GENERATED_BODY()
-	
+
+// Properties
+public:
+	int MaxShieldCount;
+
+// Methods
 public:	
 	// Sets default values for this actor's properties
 	ACommissarWearable();
