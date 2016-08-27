@@ -17,33 +17,33 @@ public:
 	UCommissarBaseSkill();
 
 	/** Skill UI display name and shorthand */
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		FString FriendlyName;
 
 	/** Skill description strings */
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		FString UntrainedDescription;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		FString TrainedDescription;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		FString AdvancedDescription;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		FString MasterDescription;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		int ExperienceCost;
 
 	/** Current level of skill */
 	int CurrentLevel;
 
 	/** Icon sprites */
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		UTexture2D* IconLarge;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
 		UTexture2D* IconSmall;
 
 	/**

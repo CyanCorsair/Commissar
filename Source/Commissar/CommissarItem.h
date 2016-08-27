@@ -24,7 +24,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interaction)
 		int ItemSize;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interaction)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Interaction)
 		TArray<int> InventoryPosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)

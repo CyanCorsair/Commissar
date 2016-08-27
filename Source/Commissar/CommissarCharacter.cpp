@@ -40,8 +40,8 @@ ACommissarCharacter::ACommissarCharacter()
 
 	// Inventory setup
 	InventoryGridSquareSize = 64;
-	InventoryGridX = 17;
-	InventoryGridY = 15;
+	InventoryGridX = 6;
+	InventoryGridY = 5;
 
 	MaxInventorySlots = InventoryGridX * InventoryGridY;
 
