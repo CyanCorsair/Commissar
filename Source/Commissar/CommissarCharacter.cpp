@@ -166,24 +166,24 @@ void ACommissarCharacter::Reload()
 {
 	if (CurrentlyHeld != NULL)
 	{
-		// Only allow reloading if it's not full
-		if (CurrentlyHeld->CurrentlyHeldAmmo->CurrentCapacity < CurrentlyHeld->CurrentlyHeldAmmo->CapacityPerUse)
+		ACommissarAmmunition* AmmoFound = Cast<ACommissarAmmunition>(FindItemInInventory(CurrentlyHeld->AmmunitionClass));
+		if (AmmoFound != NULL)
 		{
-			// What do I remove from the Inventory array?
-			ACommissarAmmunition* AmmoToRemove = NULL;
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Stack size for current ammo: %d"), AmmoFound->StackSize));
 
-			for (auto& Item : ItemInventory)
+			if (AmmoFound->StackSize > 1)
 			{
-				if (Item->GetClass() == CurrentlyHeld->AmmunitionClass->GetClass())
-				{
-					CurrentlyHeld->CurrentlyHeldAmmo = Cast<ACommissarAmmunition>(Item);
-					AmmoToRemove = Cast<ACommissarAmmunition>(Item);
-					break;
-				}
+				// If there's a stack, decrement it
+				AmmoFound->ReduceStack();
+			}
+			else if (AmmoFound->StackSize == 1)
+			{
+				// If there's no stack, decrement to 0 remove from inventory
+				AmmoFound->ReduceStack();
+				ItemInventory.Remove(AmmoFound);
 			}
 
-			// Remove outside for loop if we reloaded, so we don't get memory errors
-			if (AmmoToRemove != NULL) ItemInventory.Remove(AmmoToRemove);
+			CurrentlyHeld->CurrentlyHeldAmmo = AmmoFound;
 		}
 	}
 }
@@ -404,17 +404,36 @@ void ACommissarCharacter::Tick(float DeltaSeconds)
 void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem)
 {
 	if (NewItem) {
-		// Loop through the inventory to see if it exists; if no, continue as normal
-		TArray<class ACommissarItem*> CurrentInventory = this->GetInventory();
-		for (auto& Item : CurrentInventory)
+		if (NewItem->bIsStackable)
 		{
-			if (NewItem->IsA(Item::StaticClass()) {
+			bool bExists = false;
 
+			// Loop through the inventory to see if it exists; if no, continue as normal
+			TArray<class ACommissarItem*> CurrentInventory = this->GetInventory();
+			for (auto& Item : CurrentInventory)
+			{
+				if (NewItem->GetClass() == Item->GetClass()) {
+					bExists = true;
+					Item->IncreaseStack();
+					NewItem->Destroy();
+					break;
+				}
+			}
+
+			if (!bExists)
+			{
+				ItemInventory.Add(NewItem);
+				NewItem->PickedUp();
+				NewItem->SetOwner(this);
+				NewItem->StackSize = 1;
 			}
 		}
-		ItemInventory.Add(NewItem);
-		NewItem->PickedUp();
-		NewItem->SetOwner(this);
+		else
+		{
+			ItemInventory.Add(NewItem);
+			NewItem->PickedUp();
+			NewItem->SetOwner(this);
+		}
 	}
 }
 
@@ -424,6 +443,19 @@ void ACommissarCharacter::SpawnDefaultInventory()
 
 }
 
+ACommissarItem* ACommissarCharacter::FindItemInInventory(ACommissarItem* ItemToFind)
+{
+
+	for (auto& Item : ItemInventory)
+	{
+		if (Item->GetClass() == ItemToFind->GetClass())
+		{
+			return ItemToFind;
+		}
+	}
+
+	return NULL;
+}
 
 TArray<class ACommissarItem*> ACommissarCharacter::GetInventory()
 {
@@ -441,7 +473,7 @@ void ACommissarCharacter::ToggleInventory()
 
 		for (auto& Item : CurrentInventory)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Item name: %s"), *Item->ItemName));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Item name: %s x %d"), *Item->ItemName, Item->StackSize));
 		}
 	}
 	else

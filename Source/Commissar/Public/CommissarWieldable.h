@@ -84,9 +84,11 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 			class ACommissarAmmunition* AmmunitionClass;
 
+		/** Ammo currently in the weapon */
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 			class ACommissarAmmunition* CurrentlyHeldAmmo;
 
+		/** List of ammunition classes the weapon is allowd to use */
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 			TArray<class ACommissarAmmunition*> AllowedAmmunitionClasses;
 
@@ -157,8 +159,6 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 
 		UFUNCTION(BlueprintCallable, Category = Interaction)
 			virtual void Dropped() override;
-
-		int GetAmmunitionCount(class ACommissarCharacter* Owner, class ACommissarConsumableItem* AmmunitionClass);
 
 		float CalculateStability(class ACommissarCharacter* Owner);
 

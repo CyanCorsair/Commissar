@@ -10,13 +10,6 @@
 ACommissarAmmunition::ACommissarAmmunition()
 {
 	bIsProjectile = true;
-	CapacityPerUse = 200;
-	CurrentCapacity = CapacityPerUse;
-}
-
-void ACommissarAmmunition::ReduceCurrentCapacity()
-{
-	if (CurrentCapacity >= 1) CurrentCapacity--;
 }
 
 // Called every frame

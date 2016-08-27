@@ -104,11 +104,22 @@ void ACommissarWieldable::WantsToFire()
 
 	if (CurrentlyHeldAmmo != NULL)
 	{
-		if (CurrentlyHeldAmmo->CurrentCapacity == 0)
+		if (CurrentlyHeldAmmo->Uses == 0)
 		{
-			bCanFire = false;
-			CurrentlyHeldAmmo->Destroy();
-			CurrentlyHeldAmmo = NULL;
+			// If we have more than 0 of an ammo item, simply force a reload
+			// Otherwise, destroy the actor and set var explicitly to null
+			if (CurrentlyHeldAmmo->StackSize > 0)
+			{
+				bCanFire = false;
+				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation()); return;
+			}
+			else
+			{
+				bCanFire = false;
+				CurrentlyHeldAmmo->Destroy();
+				CurrentlyHeldAmmo = NULL;
+			}
+			
 		}
 		else
 		{
@@ -142,7 +153,7 @@ void ACommissarWieldable::OnBeginFire(ACommissarCharacter* Owner)
 		{
 			// spawn the projectile at the muzzle
 			World->SpawnActor<ACommissarProjectile>(SpawnLocation, SpawnRotation);
-			CurrentlyHeldAmmo->ReduceCurrentCapacity();
+			CurrentlyHeldAmmo->ReduceUses();
 
 			// try and play the sound if specified
 			if (FireSound != NULL)

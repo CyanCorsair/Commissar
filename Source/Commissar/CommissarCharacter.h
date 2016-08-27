@@ -237,6 +237,8 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	class ACommissarItem* FindItemInInventory(ACommissarItem* ItemToFind);
+
 	void SpawnDefaultInventory();
 	void ToggleInventory();
 	void ToggleSkills();

@@ -31,7 +31,8 @@ void ACommissarItem::Tick(float DeltaTime)
 
 }
 
-void ACommissarItem::OnUsed() {
+void ACommissarItem::OnUsed()
+{
 	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
 
 	if (Owner)
@@ -40,14 +41,31 @@ void ACommissarItem::OnUsed() {
 	}
 }
 
-void ACommissarItem::PickedUp() {
+void ACommissarItem::ReduceUses()
+{
+	if (Uses > 0) Uses--;
+}
+
+void ACommissarItem::ReduceStack()
+{
+	if (StackSize > 0) StackSize--;
+}
+
+void ACommissarItem::IncreaseStack()
+{
+	if (StackSize < MaxStackSize) StackSize++;
+}
+
+void ACommissarItem::PickedUp()
+{
 	if (Mesh)
 	{
 		Mesh->DestroyComponent();
 	}
 }
 
-void ACommissarItem::Dropped() {
+void ACommissarItem::Dropped()
+{
 	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
 	FRotator SpawnRotation(0.f, 0.f, 0.f);
 	FVector SpawnLocation(0.f, 0.f, 0.f);

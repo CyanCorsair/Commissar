@@ -56,6 +56,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Uses)
 		int Uses;
 
+	// Size of the item stack in the player's inventory.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Uses)
+		int StackSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Uses)
+		int MaxStackSize;
+
+	// Can we stack this item?
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Uses)
+		bool bIsStackable;
+
+
 	// Methods
 public:
 	// Sets default values for this actor's properties
@@ -68,6 +80,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Interaction)
 		virtual void OnUsed();
+
+	void ReduceUses();
+	void ReduceStack();
+	void IncreaseStack();
 
 	UFUNCTION(BlueprintCallable, Category = Interaction)
 		virtual void PickedUp();
