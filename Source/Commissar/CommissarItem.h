@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "CommissarItem.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class COMMISSAR_API ACommissarItem : public AActor
 {
 	GENERATED_BODY()
@@ -22,7 +22,10 @@ public:
 		int32 Value;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interaction)
-		int InventorySquaresOccupied;
+		int ItemSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interaction)
+		TArray<int> InventoryPosition;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 		UStaticMeshComponent* Mesh;

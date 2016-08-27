@@ -8,6 +8,7 @@
 #include "CommissarWearable.h"
 
 #include "CommissarBaseSkill.h"
+#include "CommissarAmmunition.h"
 
 #include "Engine.h"
 #include "Animation/AnimInstance.h"
@@ -17,6 +18,13 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
 // ACommissarCharacter
+
+/*
+TODO: CLEAN THIS CLASS UP
+1. Branch off AI and Player Character
+2. Move attributes and methods as applicable
+3. Reorganize .h and .cpp
+*/
 
 ACommissarCharacter::ACommissarCharacter()
 {
@@ -32,7 +40,11 @@ ACommissarCharacter::ACommissarCharacter()
 
 	// Inventory setup
 	InventoryGridSquareSize = 64;
-	InventoryGridX, InventoryGridY = 16;
+	InventoryGridX = 17;
+	InventoryGridY = 15;
+
+	MaxInventorySlots = InventoryGridX * InventoryGridY;
+
 	MaxUseDistance = 200.f;
 
 	// Create a CameraComponent	
@@ -111,6 +123,7 @@ void ACommissarCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	InputComponent->BindAction("ToggleInventory", IE_Pressed, this, &ACommissarCharacter::ToggleInventory);
+	InputComponent->BindAction("ToggleSkills", IE_Pressed, this, &ACommissarCharacter::ToggleSkills);
 
 	InputComponent->BindAction("Sprint", IE_Pressed, this, &ACommissarCharacter::Sprint);
 	InputComponent->BindAction("Sprint", IE_Released, this, &ACommissarCharacter::StopSprinting);
@@ -120,9 +133,13 @@ void ACommissarCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 
 	InputComponent->BindAction("Use", IE_Pressed, this, &ACommissarCharacter::OnUse);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ACommissarCharacter::OnFire);
+	InputComponent->BindAction("Reload", IE_Pressed, this, &ACommissarCharacter::Reload);
+	InputComponent->BindAction("Holster", IE_Pressed, this, &ACommissarCharacter::ToggleHolster);
 
 	InputComponent->BindAxis("MoveForward", this, &ACommissarCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ACommissarCharacter::MoveRight);
+
+	InputComponent->BindAction("TogglePauseMenu", IE_Pressed, this, &ACommissarCharacter::TogglePauseMenu);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -139,6 +156,25 @@ void ACommissarCharacter::OnFire()
 	if (CurrentlyHeld) CurrentlyHeld->OnUsed();
 }
 
+void ACommissarCharacter::Reload()
+{
+	if (CurrentlyHeld != NULL)
+	{
+		for (auto& Item : ItemInventory)
+		{
+			if (Item->GetClass() == CurrentlyHeld->AmmunitionClass->GetClass())
+			{
+				CurrentlyHeld->CurrentlyHeldAmmo = Cast<ACommissarAmmunition>(Item);
+				break;
+			}
+		}
+	}
+}
+
+void ACommissarCharacter::ToggleHolster()
+{
+
+}
 
 void ACommissarCharacter::OnUse() {
 	ACommissarItem* ItemInView = GetUsableInView();
@@ -356,6 +392,12 @@ void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem)
 	}
 }
 
+// Menu & inventory logic
+void ACommissarCharacter::SpawnDefaultInventory()
+{
+
+}
+
 
 TArray<class ACommissarItem*> ACommissarCharacter::GetInventory()
 {
@@ -383,6 +425,23 @@ void ACommissarCharacter::ToggleInventory()
 	}
 }
 
+
+void ACommissarCharacter::ToggleSkills()
+{
+
+}
+
+void ACommissarCharacter::TogglePauseMenu()
+{
+	if (CurrentState != ECharacterState::UsingPauseMenu)
+	{
+		CurrentState = ECharacterState::UsingPauseMenu;
+	}
+	else
+	{
+		CurrentState = ECharacterState::Idle;
+	}
+}
 
 // Player character stat logic
 int ACommissarCharacter::GetAttributeValue(FString AttributeName)

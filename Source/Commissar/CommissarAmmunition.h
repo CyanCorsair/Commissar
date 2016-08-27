@@ -15,10 +15,18 @@ class COMMISSAR_API ACommissarAmmunition : public ACommissarConsumableItem
 
 // Properties
 public:
-	ACommissarAmmunition();
-
 	bool bIsProjectile;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Statistic)
+	int CapacityPerUse;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Statistic)
+	int CurrentCapacity;
 
 // Methods
 public:
+	ACommissarAmmunition();
+
+	void ReduceCurrentCapacity();
+	void RemoveSelfOnEmpty();
 };

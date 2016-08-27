@@ -31,6 +31,8 @@ class ACommissarCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	// Properties
+	public:
 	/** Inventory setup */
 	UPROPERTY(EditAnywhere, Category = Inventory)
 		TArray<class ACommissarItem*> ItemInventory;
@@ -42,8 +44,15 @@ class ACommissarCharacter : public ACharacter
 	TArray<class ACommissarItem*, TFixedAllocator<10>> QuickInventory;
 
 	int InventoryGridSquareSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
 	int InventoryGridX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
 	int InventoryGridY;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
+	int MaxInventorySlots;
 
 	/** Character base attributes */
 	float DefaultMaxWalkingSpeed = 0.0f;
@@ -72,10 +81,10 @@ class ACommissarCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, Category = Inventory)
 		int Matter;
 
-	UPROPERTY(EditAnywhere, Category = Inventory)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
 		class ACommissarWieldable* CurrentlyHeld;
 
-	UPROPERTY(EditAnywhere, Category = Inventory)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Inventory)
 		class ACommissarWearable* CurrentlyWorn;
 
 	/** Weapon modifiers */
@@ -188,6 +197,7 @@ protected:
 
 	/** Fires a projectile. */
 	void OnFire();
+	void Reload();
 
 	/** Uses an item in view. */
 	void OnUse();
@@ -220,6 +230,10 @@ protected:
 
 	void SpawnDefaultInventory();
 	void ToggleInventory();
+	void ToggleSkills();
+	void ToggleHolster();
+
+	void TogglePauseMenu();
 
 	struct TouchData
 	{

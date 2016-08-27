@@ -10,4 +10,16 @@
 ACommissarAmmunition::ACommissarAmmunition()
 {
 	bIsProjectile = true;
+	CapacityPerUse = 200;
+	CurrentCapacity = CapacityPerUse;
+}
+
+void ACommissarAmmunition::ReduceCurrentCapacity()
+{
+	if (CurrentCapacity >= 1) CurrentCapacity--;
+}
+
+void ACommissarAmmunition::RemoveSelfOnEmpty()
+{
+	if (CurrentCapacity == 0) Destroy();
 }

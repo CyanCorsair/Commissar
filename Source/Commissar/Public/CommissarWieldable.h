@@ -72,10 +72,13 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 			TArray<struct FWieldableAttachment> Attachments;
 
 		/** Projectile class to spawn */
-		UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 			class ACommissarAmmunition* AmmunitionClass;
 
-		UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+			class ACommissarAmmunition* CurrentlyHeldAmmo;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 			TArray<class ACommissarAmmunition*> AllowedAmmunitionClasses;
 
 		/** Sound to play each time we fire */
@@ -105,6 +108,7 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 			EWieldableRarity WeaponRarity;
 
 		bool bIsOnGround;
+		bool bCanFire;
 
 	private:
 
@@ -125,6 +129,7 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 		void OnEquipped();
 		void OnUnEquipped();
 
+		void WantsToFire();
 		void OnBeginFire();
 		void OnEndFire();
 

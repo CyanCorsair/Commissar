@@ -32,6 +32,7 @@ ACommissarWieldable::ACommissarWieldable()
 	GunOffset = FVector(100.0f, 30.0f, 10.0f);
 
 	bIsOnGround = true;
+	bCanFire = false;
 }
 
 // Called when the game starts or when spawned
@@ -52,42 +53,7 @@ void ACommissarWieldable::Tick( float DeltaTime )
 
 void ACommissarWieldable::OnUsed()
 {
-	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
-
-	if (Owner)
-	{
-		// try and fire a projectile
-		if (AmmunitionClass != NULL)
-		{
-			const FRotator SpawnRotation = Owner->GetControlRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = ((MuzzleLocation != nullptr) ? MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
-			UWorld* const World = GetWorld();
-			if (World != NULL)
-			{
-				// spawn the projectile at the muzzle
-				World->SpawnActor<ACommissarProjectile>(SpawnLocation, SpawnRotation);
-			}
-		}
-
-		// try and play the sound if specified
-		if (FireSound != NULL)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
-
-		// try and play a firing animation if specified
-		if (FireAnimation != NULL)
-		{
-			// Get the animation object for the arms mesh
-			UAnimInstance* AnimInstance = Owner->Mesh1P->GetAnimInstance();
-			if (AnimInstance != NULL)
-			{
-				AnimInstance->Montage_Play(FireAnimation, 1.f);
-			}
-		}
-	}
+	WantsToFire();
 }
 
 void ACommissarWieldable::PickedUp()
@@ -120,4 +86,96 @@ void ACommissarWieldable::Dropped()
 	Mesh->SetVisibility(true);
 	WieldableMesh->SetVisibility(false);
 	bIsOnGround = true;
+}
+
+// Firing logic
+
+void ACommissarWieldable::WantsToFire()
+{
+	// Check currently held ammunition
+	// If none chambered, force owner to reload
+	// If none in owner inventory, play NoAmmo sound
+	// If successful, invoke OnBeginFire
+
+	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
+	
+	TArray<ACommissarItem*> Inventory = Owner->GetInventory();
+	ACommissarAmmunition* CurrentAmmoItem = NULL;
+
+	if (AmmunitionClass == NULL) bCanFire = false;
+
+	if (AmmunitionClass)
+	{
+		for (auto& Item : Inventory)
+		{
+			if (Item->GetClass() == AmmunitionClass->GetClass())
+			{
+				CurrentAmmoItem = Cast<ACommissarAmmunition>(Item);
+				bCanFire = true;
+				break;
+			}
+			else
+			{
+				CurrentAmmoItem = NULL;
+				bCanFire = false;
+			}
+		}
+	}
+
+	if (!bCanFire) { UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation()); return; }
+
+
+	if (bCanFire)
+	{
+		// try and fire a projectile
+		const FRotator SpawnRotation = Owner->GetControlRotation();
+		// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+		const FVector SpawnLocation = ((MuzzleLocation != nullptr) ? MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+
+		UWorld* const World = GetWorld();
+		if (World != NULL)
+		{
+			// spawn the projectile at the muzzle
+			World->SpawnActor<ACommissarProjectile>(SpawnLocation, SpawnRotation);
+			CurrentAmmoItem->ReduceCurrentCapacity();
+		}
+
+		// try and play the sound if specified
+		if (FireSound != NULL)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		}
+
+		// try and play a firing animation if specified
+		if (FireAnimation != NULL)
+		{
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Owner->Mesh1P->GetAnimInstance();
+			if (AnimInstance != NULL)
+			{
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
+			}
+		}
+	}
+}
+
+void ACommissarWieldable::OnBeginFire()
+{
+
+}
+
+void ACommissarWieldable::OnEndFire()
+{
+
+}
+
+// Equipping logic
+void ACommissarWieldable::OnEquipped()
+{
+
+}
+
+void ACommissarWieldable::OnUnEquipped()
+{
+
 }
