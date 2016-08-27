@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CommissarItem.h"
+#include "CommissarCharacter.h"
 #include "GameFramework/Actor.h"
 #include "CommissarWieldable.generated.h"
 
@@ -32,6 +33,14 @@ enum class EWieldableRarity : uint8
 	Military,
 	Civilian,
 	Exotic
+};
+
+UENUM(BlueprintType)
+enum class EWieldableFireMode : uint8
+{
+	Single,
+	Burst,
+	Automatic
 };
 
 USTRUCT(BlueprintType)
@@ -107,8 +116,15 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Property)
 			EWieldableRarity WeaponRarity;
 
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Property)
+			EWieldableFireMode FireMode;
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Property)
+			TArray<EWieldableFireMode> AvailableFireModes;
+
 		bool bIsOnGround;
 		bool bCanFire;
+		bool bIsFiring;
 
 	private:
 
@@ -130,7 +146,7 @@ class COMMISSAR_API ACommissarWieldable : public ACommissarItem
 		void OnUnEquipped();
 
 		void WantsToFire();
-		void OnBeginFire();
+		void OnBeginFire(ACommissarCharacter* Owner);
 		void OnEndFire();
 
 		UFUNCTION(BlueprintCallable, Category = Interaction)

@@ -19,7 +19,7 @@ void ACommissarAmmunition::ReduceCurrentCapacity()
 	if (CurrentCapacity >= 1) CurrentCapacity--;
 }
 
-void ACommissarAmmunition::RemoveSelfOnEmpty()
-{
-	if (CurrentCapacity == 0) Destroy();
+// Called every frame
+void ACommissarAmmunition::Tick(float DeltaSeconds) {
+	Super::Tick(DeltaSeconds);
 }

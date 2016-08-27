@@ -33,6 +33,9 @@ ACommissarWieldable::ACommissarWieldable()
 
 	bIsOnGround = true;
 	bCanFire = false;
+	bIsFiring = false;
+
+	CurrentlyHeldAmmo = NULL;
 }
 
 // Called when the game starts or when spawned
@@ -98,35 +101,37 @@ void ACommissarWieldable::WantsToFire()
 	// If successful, invoke OnBeginFire
 
 	ACommissarCharacter* Owner = Cast<ACommissarCharacter>(GetOwner());
-	
-	TArray<ACommissarItem*> Inventory = Owner->GetInventory();
-	ACommissarAmmunition* CurrentAmmoItem = NULL;
 
-	if (AmmunitionClass == NULL) bCanFire = false;
-
-	if (AmmunitionClass)
+	if (CurrentlyHeldAmmo != NULL)
 	{
-		for (auto& Item : Inventory)
+		if (CurrentlyHeldAmmo->CurrentCapacity == 0)
 		{
-			if (Item->GetClass() == AmmunitionClass->GetClass())
-			{
-				CurrentAmmoItem = Cast<ACommissarAmmunition>(Item);
-				bCanFire = true;
-				break;
-			}
-			else
-			{
-				CurrentAmmoItem = NULL;
-				bCanFire = false;
-			}
+			bCanFire = false;
+			CurrentlyHeldAmmo->Destroy();
+			CurrentlyHeldAmmo = NULL;
+		}
+		else
+		{
+			OnBeginFire(Owner);
+			bCanFire = true;
 		}
 	}
+	else
+	{
+		// If reload fires but no ammo exists, switch off fire
+		if (CurrentlyHeldAmmo == NULL) bCanFire = false;
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation()); return;
+	}
+}
 
-	if (!bCanFire) { UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation()); return; }
+void ACommissarWieldable::OnBeginFire(ACommissarCharacter* Owner)
+{
 
-
+	// Fire a projectile
 	if (bCanFire)
 	{
+		bIsFiring = true;
+
 		// try and fire a projectile
 		const FRotator SpawnRotation = Owner->GetControlRotation();
 		// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
@@ -137,36 +142,31 @@ void ACommissarWieldable::WantsToFire()
 		{
 			// spawn the projectile at the muzzle
 			World->SpawnActor<ACommissarProjectile>(SpawnLocation, SpawnRotation);
-			CurrentAmmoItem->ReduceCurrentCapacity();
-		}
+			CurrentlyHeldAmmo->ReduceCurrentCapacity();
 
-		// try and play the sound if specified
-		if (FireSound != NULL)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
-
-		// try and play a firing animation if specified
-		if (FireAnimation != NULL)
-		{
-			// Get the animation object for the arms mesh
-			UAnimInstance* AnimInstance = Owner->Mesh1P->GetAnimInstance();
-			if (AnimInstance != NULL)
+			// try and play the sound if specified
+			if (FireSound != NULL)
 			{
-				AnimInstance->Montage_Play(FireAnimation, 1.f);
+				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+			}
+
+			// try and play a firing animation if specified
+			if (FireAnimation != NULL)
+			{
+				// Get the animation object for the arms mesh
+				UAnimInstance* AnimInstance = Owner->Mesh1P->GetAnimInstance();
+				if (AnimInstance != NULL)
+				{
+					AnimInstance->Montage_Play(FireAnimation, 1.f);
+				}
 			}
 		}
 	}
 }
 
-void ACommissarWieldable::OnBeginFire()
-{
-
-}
-
 void ACommissarWieldable::OnEndFire()
 {
-
+	bIsFiring = false;
 }
 
 // Equipping logic

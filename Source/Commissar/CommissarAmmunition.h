@@ -28,5 +28,7 @@ public:
 	ACommissarAmmunition();
 
 	void ReduceCurrentCapacity();
-	void RemoveSelfOnEmpty();
+
+	// Called every frame
+	virtual void Tick(float DeltaSeconds) override;
 };

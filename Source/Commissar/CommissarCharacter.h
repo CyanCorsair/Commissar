@@ -193,11 +193,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = AttributeAccessors)
 		int CalculateNewValue(int Max, int New);
 
+	UFUNCTION(BlueprintCallable, Category = CharacterAction)
+		void Reload();
+
+	void OnEndFire();
 protected:
 
-	/** Fires a projectile. */
+	/** Invokes WantsToFire from CurrentlyHeld */
 	void OnFire();
-	void Reload();
+
+	/** Cycle through available firing modes in weapon's TArray */
+	void SwitchFireMode();
+
+	/** Cycle through available ammunition types in menu */
+	void SwitchAmmo();
 
 	/** Uses an item in view. */
 	void OnUse();

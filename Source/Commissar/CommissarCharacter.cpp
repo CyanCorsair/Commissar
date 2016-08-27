@@ -133,6 +133,7 @@ void ACommissarCharacter::SetupPlayerInputComponent(class UInputComponent* Input
 
 	InputComponent->BindAction("Use", IE_Pressed, this, &ACommissarCharacter::OnUse);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ACommissarCharacter::OnFire);
+	InputComponent->BindAction("Fire", IE_Released, this, &ACommissarCharacter::OnEndFire);
 	InputComponent->BindAction("Reload", IE_Pressed, this, &ACommissarCharacter::Reload);
 	InputComponent->BindAction("Holster", IE_Pressed, this, &ACommissarCharacter::ToggleHolster);
 
@@ -156,17 +157,33 @@ void ACommissarCharacter::OnFire()
 	if (CurrentlyHeld) CurrentlyHeld->OnUsed();
 }
 
+void ACommissarCharacter::OnEndFire()
+{
+	if (CurrentlyHeld) CurrentlyHeld->OnEndFire();
+}
+
 void ACommissarCharacter::Reload()
 {
 	if (CurrentlyHeld != NULL)
 	{
-		for (auto& Item : ItemInventory)
+		// Only allow reloading if it's not full
+		if (CurrentlyHeld->CurrentlyHeldAmmo->CurrentCapacity < CurrentlyHeld->CurrentlyHeldAmmo->CapacityPerUse)
 		{
-			if (Item->GetClass() == CurrentlyHeld->AmmunitionClass->GetClass())
+			// What do I remove from the Inventory array?
+			ACommissarAmmunition* AmmoToRemove = NULL;
+
+			for (auto& Item : ItemInventory)
 			{
-				CurrentlyHeld->CurrentlyHeldAmmo = Cast<ACommissarAmmunition>(Item);
-				break;
+				if (Item->GetClass() == CurrentlyHeld->AmmunitionClass->GetClass())
+				{
+					CurrentlyHeld->CurrentlyHeldAmmo = Cast<ACommissarAmmunition>(Item);
+					AmmoToRemove = Cast<ACommissarAmmunition>(Item);
+					break;
+				}
 			}
+
+			// Remove outside for loop if we reloaded, so we don't get memory errors
+			if (AmmoToRemove != NULL) ItemInventory.Remove(AmmoToRemove);
 		}
 	}
 }
@@ -387,8 +404,17 @@ void ACommissarCharacter::Tick(float DeltaSeconds)
 void ACommissarCharacter::PickUpItem(ACommissarItem* NewItem)
 {
 	if (NewItem) {
+		// Loop through the inventory to see if it exists; if no, continue as normal
+		TArray<class ACommissarItem*> CurrentInventory = this->GetInventory();
+		for (auto& Item : CurrentInventory)
+		{
+			if (NewItem->IsA(Item::StaticClass()) {
+
+			}
+		}
 		ItemInventory.Add(NewItem);
 		NewItem->PickedUp();
+		NewItem->SetOwner(this);
 	}
 }
 
